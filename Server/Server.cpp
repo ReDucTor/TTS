@@ -182,6 +182,7 @@ void Server::DisconnectClient(std::shared_ptr<Connection> connection)
 	std::lock_guard<std::mutex> lock(_mutex);
 	connection->pmngr.Clear();
 	closesocket(connection->socket);
+	// need to stop thread
 	ConnHolder.erase(std::remove(ConnHolder.begin(), ConnHolder.end(), connection));
 	std::cout << "Client Disconected : " << connection->ID << std::endl;
 }
