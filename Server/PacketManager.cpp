@@ -2,6 +2,7 @@
 
 bool PacketManager::HavePackets()
 {
+	// NOTE: (reductor) Should lock the mutex here also
 	return !packets.empty();
 }
 
@@ -22,6 +23,7 @@ Packet PacketManager::Retrieve()
 void PacketManager::Clear()
 {
 	std::lock_guard<std::mutex> lock(mtx);
+	// Can just use packets = std::queue<Packet>{};
 	std::queue<Packet> empty;
 	std::swap(packets, empty);
 }

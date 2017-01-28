@@ -1,12 +1,14 @@
 #include "Packet.h"
 #include <memory>
-Packet::Packet(char * _buffer, int _size)
+Packet::Packet(char * _buffer, int _size) // NOTE: (reductor) Should avoid _ prefix for names, this is reserved for the compiler
 {
+	// NOTE: (reductor) Should use initializer lists instead
 	buffer.insert(buffer.end(), _buffer, _buffer + _size);
 }
 
 Packet::Packet(const Packet & p)
 {
+	// NOTE: (reductor) Should use initializer lists instead
 	buffer = p.buffer;
 }
 
@@ -17,11 +19,13 @@ Packet::Packet(PacketType type)
 
 Packet::~Packet()
 {
+	// NOTE: (reductor) You do not need to do anything in the destructor, this happens automatically
 	buffer.clear();
 }
 
 void Packet::Append(char * data, int _size)
 {
+	// NOTE: (reductor) data should be 'const char *' not 'char*'
 	buffer.insert(buffer.end(), data, data+ _size);
 }
 

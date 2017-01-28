@@ -1,7 +1,7 @@
 #pragma once
 #include "LoadIni.h"
 #include "mysql_driver.h"
-#include "cppconn\resultset.h"
+#include "cppconn\resultset.h" // NOTE: (reductor) Should prefer / for includes over \ 
 #include "cppconn\exception.h"
 #include "cppconn\prepared_statement.h"
 #include "cppconn\statement.h"

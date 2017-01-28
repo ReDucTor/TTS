@@ -1,6 +1,6 @@
 #pragma once
 
-enum PacketType :int16_t
+enum PacketType :int16_t // NOTE: (reductor) This is used as an 'enum class' yet not defined as one, this might become an issue with different compilers
 {
 	Chat_ChatMessage,
 	Login_AttemptToLogin,

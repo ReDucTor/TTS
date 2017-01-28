@@ -34,12 +34,14 @@ Server::Server()
 		exit(1);
 	}
 	std::thread ph([this] { PacketSenderThread(); });
-	ph.detach();
+	// NOTE: (reductor) Because the thread uses 'this' and is detached it can still 
+	// be using 'this' after 'Server' is destroyed (However it appears you don't have a graceful shutdown at the moment)
+	ph.detach(); 
 }
 
 bool Server::ListenForNewConnections()
 {
-	SOCKET newConnection = INVALID_SOCKET;
+	SOCKET newConnection = INVALID_SOCKET; // NOTE: (reductor) This assignment is redundant its reassigned on the line below
 	newConnection = accept(ConnSock, (SOCKADDR*)&addr, &addrLen);
 	if (newConnection == INVALID_SOCKET) {
 		printf("Failed to accept connection. ERROR: %d\n", WSAGetLastError());
@@ -52,7 +54,7 @@ bool Server::ListenForNewConnections()
 		IDCounter += 1;
 		std::cout << "Client Connected ID : " << IDCounter-1 << std::endl;
 		std::thread ph([this] { UserMsgHandler(ConnHolder.back()); });
-		ph.detach();
+		ph.detach(); // NOTE: (reductor) This thread has the same shutdown race condition as the other thread
 		return true;
 	}
 }
@@ -71,7 +73,7 @@ bool Server::ProcessPacket(std::shared_ptr<Connection> connection, PacketType pa
 		p.AppendInt16(Chat_ChatMessage);
 		p.AppendInt32((int32_t)message.size());
 		p.Append((char*)message.c_str(), (int)message.size());
-		for (auto& i : ConnHolder)
+		for (auto& i : ConnHolder) // NOTE: (reductor) Should lock _mutex here
 		{
 			if (i == connection)
 				continue;
@@ -96,7 +98,7 @@ bool Server::ProcessPacket(std::shared_ptr<Connection> connection, PacketType pa
 			case Login_LoginSuccessful:
 				p.AppendInt16(Login_LoginSuccessful);
 				p.AppendInt32(id);
-				connection->pmngr.Append(p);
+				connection->pmngr.Append(p); // NOTE: (reductor) This append is common to all items in teh switch, why not move it out?
 				break;
 			case Login_WrongPassword:
 				p.AppendInt16(Login_WrongPassword);
@@ -204,8 +206,12 @@ PacketType Server::CheckForLogin(const char * data,int& id)
 			mysql.ExecutePstmtQuery();
 			if (mysql.isResult())
 			{
+				// NOTE: (reductor) Minor security thing you want to avoid storing plain text passwords
 				if (mysql.GetString("password") == password)
 				{
+					// NOTE: (reductor) Should just fetch these fields at the same time if they aren't large, 
+					// sending multiple queries likely has a bigger cost
+					// NOTE: (reductor) 'firsttimelogin' is not used
 					mysql.PstmtQuery("SELECT firsttimelogin,id FROM user_acc WHERE username= ? LIMIT 1");
 					mysql.SetString(1, username);
 					mysql.ExecutePstmtQuery();

@@ -12,5 +12,5 @@ public:
 	void AppendInt32(int32_t value);
 	void AppendInt16(int16_t value);
 	void AppednInt8(int8_t value);
-	std::vector<uint8_t> buffer;
+	std::vector<uint8_t> buffer; // NOTE: (reductor) You should avoid exposing data
 };

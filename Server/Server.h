@@ -52,7 +52,7 @@ private:
 	void DisconnectClient(std::shared_ptr<Connection> connection);
 private:
 	std::vector<std::shared_ptr<Connection>> ConnHolder; // client connections sockets
-	std::mutex _mutex;
+	std::mutex _mutex; // NOTE: (reductor) Should avoid prefixing variables with _
 	unsigned int IDCounter = 0;
 	INISettings cfg;
 	MySQL mysql;

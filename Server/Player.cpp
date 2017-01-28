@@ -1,10 +1,10 @@
 #include "Player.h"
 #include <fstream>
 
-bool Player::InitPlayer(std::string db, unsigned int userid, MySQL* mysql)
+bool Player::InitPlayer(std::string db, unsigned int userid, MySQL* mysql) // NOTE: (reductor) mysql appears to be used from other threads, this is likely unsafe
 {
 	try {
-		if(mysql->Connect(db))
+		if(mysql->Connect(db)) // NOTE: (reductor) You probably want to avoid connecting to mysql for each query, should just connect once and use it
 		{
 			mysql->PstmtQuery("SELECT * FROM user_acc WHERE id=? LIMIT 1");
 			mysql->SetInt(1, userid);
@@ -37,7 +37,7 @@ bool Player::InitPlayer(std::string db, unsigned int userid, MySQL* mysql)
 			mysql->Disconnect();
 		}
 	}
-	catch (sql::SQLException &e)
+	catch (sql::SQLException &e) // NOTE: (reductor) This seems fairly common you might be best wrapping somewhere
 	{
 		std::string error = "Mysql Error code :" + std::to_string(e.getErrorCode());
 		Log(error);
@@ -57,7 +57,7 @@ Packet Player::GetPlayerPacket()
 	p.AppendInt16(PacketType::Login_SendUserData);
 	Packet temp;
 	//construct temp buffer
-	temp.AppendInt32((int32_t)username.size());
+	temp.AppendInt32((int32_t)username.size()); // NOTE: (reductor) This size prefix seems fairly common it might be worth making a function to do this
 	temp.Append((char*)username.c_str(), (int)username.size());
 	temp.AppendInt32((int32_t)IP.size());
 	temp.Append((char*)IP.c_str(), (int)IP.size());

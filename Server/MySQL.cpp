@@ -12,10 +12,10 @@ MySQL::MySQL(INISettings & cfg)
 
 MySQL::~MySQL()
 {
-	delete result;
+	delete result; // NOTE: can just call Disconnect() instead
 	delete pstmt;
 	delete con;
-	result = nullptr;
+	result = nullptr; // NOTE: (reductor) there is no need to set these to nullptr, no calls can happen after the destructor
 	pstmt = nullptr;
 	con = nullptr;
 }
@@ -23,14 +23,14 @@ MySQL::~MySQL()
 bool MySQL::Connect(std::string database)
 {
 	driver = sql::mysql::get_mysql_driver_instance();
-	con = driver->connect(cfg.db.host, cfg.db.username, cfg.db.password);
+	con = driver->connect(cfg.db.host, cfg.db.username, cfg.db.password); // NOTE: (reductor) This does not delete any previous connection
 	con->setSchema(database);
 	return con->isValid();
 }
 
 void MySQL::Disconnect()
 {
-	delete result;
+	delete result; // NOTE: (reductor) can use unique_ptr instead
 	delete pstmt;
 	delete con;
 	result = nullptr;
@@ -38,13 +38,13 @@ void MySQL::Disconnect()
 	con = nullptr;
 }
 
-void MySQL::PstmtQuery(const std::string query)
+void MySQL::PstmtQuery(const std::string query) // NOTE: (reductor) Should use const & here
 {
 	sql::SQLString q(query);
-	pstmt = con->prepareStatement(q);
+	pstmt = con->prepareStatement(q); // NOTE: (reductor) This can overwite and existing pstmt without deleting it
 }
 
-void MySQL::SetString(int id, std::string str)
+void MySQL::SetString(int id, std::string str) // NOTE: (reductor) Should use const & for str here
 {
 	pstmt->setString(id, str);
 }

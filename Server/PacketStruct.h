@@ -1,6 +1,6 @@
 #pragma once
 #include "Packet.h"
-#include <vector>
+#include <vector> // NOTE: (reductor) vector is unused here
 
 namespace PS {
 	namespace Send {
